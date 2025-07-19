@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Notepad</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --header-bg-start: #ff8c00;
+            --header-bg-end: #ffa500;
+            --body-bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --text-color-dark: #333;
+            --text-color-light: #fff;
+            --button-blue: #007bff;
+            --button-green: #28a745;
+            --button-red: #dc3545;
+            --button-purple: #6f42c1;
+            --button-hover-blue: #0056b3;
+            --button-hover-green: #218838;
+            --button-hover-red: #c82333;
+            --button-hover-purple: #5a36a3;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --input-border-focus: #80bdff;
+            --input-shadow-focus: rgba(0, 123, 255, 0.25);
+            --todo-complete-color: #6c757d;
+            --todo-complete-bg: #e9ecef;
+            --button-red-rgb: 220, 53, 69; /* Moved this up to define before use */
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--body-bg);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(90deg, var(--header-bg-start), var(--header-bg-end));
+            color: var(--text-color-light);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--box-shadow);
+            z-index: 10;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-logo-icon {
+            width: 30px;
+            height: 30px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+        }
+        .header-logo-icon svg {
+            fill: var(--text-color-light);
+        }
+
+        .header-title {
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-nav-item {
+            color: var(--text-color-light);
+            text-decoration: none;
+            font-size: 1em;
+            font-weight: 400;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .header-nav-item:hover,
+        .header-nav-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .notepad-card,
+        .todo-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--box-shadow);
+            width: 100%;
+            max-width: 700px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-height: 500px;
+        }
+
+        .todo-card {
+            display: none;
+        }
+
+        .notepad-header,
+        .todo-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .notepad-header svg,
+        .todo-header svg {
+            width: 30px;
+            height: 30px;
+            fill: var(--text-color-dark);
+            opacity: 0.7;
+        }
+
+        .notepad-header h2,
+        .todo-header h2 {
+            font-size: 1.6em;
+            font-weight: 600;
+            color: var(--text-color-dark);
+            margin: 0;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .notes-title-input,
+        .notes-textarea,
+        .todo-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: 'Poppins', sans-serif;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            color: var(--text-color-dark);
+            background-color: var(--card-bg);
+        }
+
+        .notes-title-input:focus,
+        .notes-textarea:focus,
+        .todo-input:focus {
+            border-color: var(--input-border-focus);
+            box-shadow: 0 0 0 0.25rem var(--input-shadow-focus);
+        }
+
+        .notes-title-input {
+            height: 45px;
+            font-weight: 600;
+        }
+
+        .notes-textarea {
+            flex-grow: 1;
+            min-height: 300px;
+            resize: vertical;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-color-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .action-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-color-light);
+        }
+
+        .btn-save {
+            background-color: var(--button-blue);
+        }
+        .btn-save:hover {
+            background-color: var(--button-hover-blue);
+            transform: translateY(-2px);
+        }
+
+        .btn-download {
+            background-color: var(--button-green);
+        }
+        .btn-download:hover {
+            background-color: var(--button-hover-green);
+            transform: translateY(-2px);
+        }
+
+        .btn-upload {
+            background-color: var(--button-purple);
+        }
+        .btn-upload:hover {
+            background-color: var(--button-hover-purple);
+            transform: translateY(-2px);
+        }
+
+        #upload-file-input {
+            display: none;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 10px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .message.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .todo-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .todo-input-container .todo-input {
+            flex-grow: 1;
+        }
+
+        .add-todo-btn {
+            background-color: var(--button-blue);
+            color: var(--text-color-light);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-todo-btn:hover {
+            background-color: var(--button-hover-blue);
+        }
+
+        .todo-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 350px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            transition: background-color 0.3s ease;
+        }
+
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+
+        .todo-item.completed {
+            text-decoration: line-through;
+            color: var(--todo-complete-color);
+            background-color: var(--todo-complete-bg);
+        }
+
+        .todo-item input[type="checkbox"] {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            cursor: pointer;
+            accent-color: var(--button-green);
+        }
+
+        .todo-item span {
+            flex-grow: 1;
+            font-size: 1.05em;
+            word-break: break-word;
+        }
+
+        .todo-item .delete-btn {
+            background: none;
+            border: none;
+            color: var(--button-red);
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-left: 15px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .todo-item .delete-btn:hover {
+            background-color: rgba(var(--button-red-rgb), 0.1);
+            color: var(--button-hover-red);
+        }
+        
+        /* Footer Styles */
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #333;
+            color: #eee;
+            font-size: 0.8em;
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 5px; /* Add some space between links and copyright */
+        }
+
+        .social-links a {
+            color: #eee;
+            font-size: 1.5em;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--header-bg-end); /* Orange color on hover */
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 15px;
+            }
+            .header-title {
+                font-size: 1.3em;
+            }
+            .header-nav-item {
+                font-size: 0.9em;
+                padding: 3px 8px;
+            }
+            .main-content {
+                padding: 15px;
+            }
+            .notepad-card, .todo-card {
+                padding: 20px;
+                min-height: 400px;
+            }
+            .notepad-header h2, .todo-header h2 {
+                font-size: 1.4em;
+            }
+            .action-buttons {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .action-btn {
+                flex-basis: 48%;
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+            .todo-input-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .add-todo-btn {
+                width: 100%;
+                padding: 10px 15px;
+            }
+            .todo-list {
+                max-height: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-left {
+                gap: 10px;
+            }
+            .header-nav-item {
+                display: block;
+                font-size: 0.8em;
+                padding: 2px 5px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .header-right {
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            .notepad-card, .todo-card {
+                padding: 15px;
+            }
+            .notepad-header h2, .todo-header h2 {
+                font-size: 1.2em;
+            }
+            .notes-title-input, .notes-textarea, .todo-input {
+                padding: 10px 12px;
+                font-size: 0.9em;
+            }
+            .notes-textarea {
+                min-height: 250px;
+            }
+            .action-btn {
+                flex-basis: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-left">
+            <div class="header-logo-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+            </div>
+            <div class="header-title">DigiPad</div>
+        </div>
+        <div class="header-right">
+            <a href="#" id="notepad-nav" class="header-nav-item active">Notepad</a>
+            <a href="#" id="todo-nav" class="header-nav-item">To-Do List</a>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div id="notepad-section" class="notepad-card">
+            <div class="notepad-header">
+                <h2>Online Notes</h2>
+            </div>
+
+            <div class="input-group">
+                <label for="notes-title">Notes Title</label>
+                <input type="text" id="notes-title" class="notes-title-input" placeholder="Enter your note title here...">
+            </div>
+
+            <div class="input-group" style="flex-grow: 1;">
+                <label for="notes-content">Start typing your notes here...</label>
+                <textarea id="notes-content" class="notes-textarea" placeholder="Start typing your notes here..."></textarea>
+            </div>
+
+            <div class="action-buttons">
+                <button id="save-btn" class="action-btn btn-save">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10V3.5L18.5 9H15z" fill="currentColor"/></svg>
+                    Save
+                </button>
+                <button id="download-btn" class="action-btn btn-download">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-4 6v4H9v-4H5l7 7 7-7h-4z" fill="currentColor"/></svg>
+                    Download
+                </button>
+                <button id="upload-trigger-btn" class="action-btn btn-upload">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" fill="currentColor"/></svg>
+                    Upload
+                </button>
+                <input type="file" id="upload-file-input" accept=".txt">
+            </div>
+
+            <div id="status-message-notepad" class="message"></div>
+        </div>
+
+        <div id="todo-section" class="todo-card">
+            <div class="todo-header">
+                
+                <h2>My To-Do List</h2>
+            </div>
+
+            <div class="todo-input-container">
+                <input type="text" id="new-todo-input" class="todo-input" placeholder="Add a new to-do...">
+                <button id="add-todo-btn" class="add-todo-btn">Add Task</button>
+            </div>
+
+            <ul id="todo-list" class="todo-list">
+                </ul>
+
+            <div id="status-message-todo" class="message"></div>
+        </div>
+        
+    </main>
+    
+
+    <footer class="footer">
+        <div class="social-links">
+        <a href="https://github.com/DiaryOfRAJ" aria-label="GitHub" target="_blank"><i class="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/raj-sharma-3b897131a/" aria-label="LinkedIn" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://x.com/diary_of_raj" aria-label="Twitter" target="_blank"><i class="fab fa-twitter"></i></a>
+        <a href="https://www.instagram.com/_diary_of_raj_/" aria-label="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+       </div>
+        
+        &copy; 2025 Raj Vishwakarma. All Rights Reserved.
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const notesTitleInput = document.getElementById('notes-title');
+            const notesContentTextarea = document.getElementById('notes-content');
+            const saveBtn = document.getElementById('save-btn');
+            const downloadBtn = document.getElementById('download-btn');
+            const uploadTriggerBtn = document.getElementById('upload-trigger-btn');
+            const uploadFileInput = document.getElementById('upload-file-input');
+            const statusMessageNotepad = document.getElementById('status-message-notepad');
+
+            const newTodoInput = document.getElementById('new-todo-input');
+            const addTodoBtn = document.getElementById('add-todo-btn');
+            const todoListUl = document.getElementById('todo-list');
+            const statusMessageTodo = document.getElementById('status-message-todo');
+
+            const notepadSection = document.getElementById('notepad-section');
+            const todoSection = document.getElementById('todo-section');
+            const notepadNav = document.getElementById('notepad-nav');
+            const todoNav = document.getElementById('todo-nav');
+
+            function showStatus(message, type = 'success', targetElement) {
+                targetElement.textContent = message;
+                targetElement.className = `message show ${type}`;
+                setTimeout(() => {
+                    targetElement.classList.remove('show');
+                }, 3000);
+            }
+
+            function showSection(sectionId) {
+                if (sectionId === 'notepad') {
+                    notepadSection.style.display = 'flex';
+                    todoSection.style.display = 'none';
+                    notepadNav.classList.add('active');
+                    todoNav.classList.remove('active');
+                } else if (sectionId === 'todo') {
+                    notepadSection.style.display = 'none';
+                    todoSection.style.display = 'flex';
+                    todoNav.classList.add('active');
+                    notepadNav.classList.remove('active');
+                    renderTodos();
+                }
+            }
+
+            notepadNav.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection('notepad');
+            });
+
+            todoNav.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection('todo');
+            });
+
+            function loadNote() {
+                const savedTitle = localStorage.getItem('notepadTitle');
+                const savedContent = localStorage.getItem('notepadContent');
+                if (savedTitle) {
+                    notesTitleInput.value = savedTitle;
+                }
+                if (savedContent) {
+                    notesContentTextarea.value = savedContent;
+                }
+                if (savedTitle || savedContent) {
+                    showStatus('Note loaded from previous session!', 'success', statusMessageNotepad);
+                }
+            }
+
+            saveBtn.addEventListener('click', () => {
+                localStorage.setItem('notepadTitle', notesTitleInput.value);
+                localStorage.setItem('notepadContent', notesContentTextarea.value);
+                showStatus('Note saved successfully!', 'success', statusMessageNotepad);
+            });
+
+            downloadBtn.addEventListener('click', () => {
+                const title = notesTitleInput.value.trim();
+                const content = notesContentTextarea.value;
+                const filename = (title ? title.replace(/[^a-z0-9_.-]/gi, '_') : 'untitled_note') + '.txt';
+
+                const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+                showStatus('Note downloaded!', 'success', statusMessageNotepad);
+            });
+
+            uploadTriggerBtn.addEventListener('click', () => {
+                uploadFileInput.click();
+            });
+
+            uploadFileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    if (file.type !== 'text/plain') {
+                        showStatus('Please select a .txt file.', 'error', statusMessageNotepad);
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const fileContent = e.target.result;
+                        const lines = fileContent.split('\n');
+                        let inferredTitle = file.name.replace(/\.txt$/, '');
+
+                        if (lines.length > 0 && lines[0].trim().length > 0 && lines[0].trim().length < 100) {
+                            inferredTitle = lines[0].trim();
+                            notesContentTextarea.value = lines.slice(1).join('\n');
+                        } else {
+                            notesContentTextarea.value = fileContent;
+                        }
+                        notesTitleInput.value = inferredTitle;
+                        showStatus(`'${file.name}' loaded successfully!`, 'success', statusMessageNotepad);
+                    };
+                    reader.onerror = () => {
+                        showStatus('Failed to read file.', 'error', statusMessageNotepad);
+                    };
+                    reader.readAsText(file);
+                }
+                event.target.value = '';
+            });
+
+            let todos = JSON.parse(localStorage.getItem('todos')) || [];
+
+            function saveTodos() {
+                localStorage.setItem('todos', JSON.stringify(todos));
+            }
+
+            function renderTodos() {
+                todoListUl.innerHTML = '';
+                if (todos.length === 0) {
+                    const emptyMessage = document.createElement('li');
+                    emptyMessage.textContent = 'No tasks yet! Add one above.';
+                    emptyMessage.style.textAlign = 'center';
+                    emptyMessage.style.padding = '20px';
+                    emptyMessage.style.color = '#777';
+                    todoListUl.appendChild(emptyMessage);
+                    return;
+                }
+
+                todos.forEach((todo, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('todo-item');
+                    if (todo.completed) {
+                        listItem.classList.add('completed');
+                    }
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = todo.completed;
+                    checkbox.addEventListener('change', () => toggleTodoComplete(index));
+
+                    const todoText = document.createElement('span');
+                    todoText.textContent = todo.text;
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.classList.add('delete-btn');
+                    deleteBtn.innerHTML = '&times;';
+                    deleteBtn.title = 'Delete task';
+                    deleteBtn.addEventListener('click', () => deleteTodo(index));
+
+                    listItem.appendChild(checkbox);
+                    listItem.appendChild(todoText);
+                    listItem.appendChild(deleteBtn);
+                    todoListUl.appendChild(listItem);
+                });
+            }
+
+            function addTodo() {
+                const todoText = newTodoInput.value.trim();
+                if (todoText) {
+                    todos.push({ text: todoText, completed: false });
+                    newTodoInput.value = '';
+                    saveTodos();
+                    renderTodos();
+                    showStatus('Task added successfully!', 'success', statusMessageTodo);
+                } else {
+                    showStatus('Please enter a task.', 'error', statusMessageTodo);
+                }
+            }
+
+            function toggleTodoComplete(index) {
+                todos[index].completed = !todos[index].completed;
+                saveTodos();
+                renderTodos();
+                showStatus(todos[index].completed ? 'Task marked complete!' : 'Task marked incomplete!', 'success', statusMessageTodo);
+            }
+
+            function deleteTodo(index) {
+                const deletedTask = todos.splice(index, 1);
+                saveTodos();
+                renderTodos();
+                showStatus(`Task "${deletedTask[0].text}" deleted.`, 'success', statusMessageTodo);
+            }
+
+            addTodoBtn.addEventListener('click', addTodo);
+            newTodoInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addTodo();
+                }
+            });
+
+            loadNote();
+            showSection('notepad');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Image Puzzle</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #e0f2f7;
+      margin: 0;
+      overflow-x: hidden;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .game-container {
+      background-color: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      padding: 30px;
+      text-align: center;
+      max-width: 550px;
+      width: 100%;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      font-size: 2.8em;
+      letter-spacing: 1px;
+    }
+
+    .info-display {
+      font-size: 1.4em;
+      color: #34495e;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .game-board {
+      display: grid;
+      border: 5px solid #3498db;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+      margin: 0 auto;
+      max-width: calc(100% - 10px);
+      width: 306px;
+      height: 306px;
+    }
+
+    .puzzle-block {
+      background-size: cover;
+      background-repeat: no-repeat;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: transform 0.2s ease-out;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2em;
+      font-weight: bold;
+      color: rgba(255, 255, 255, 0.8);
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      box-sizing: border-box;
+    }
+
+    .puzzle-block.empty {
+      background-color: #ecf0f1;
+      cursor: default;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+      background-image: none !important;
+    }
+
+    .message-display {
+      margin-top: 25px;
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #28a745;
+      min-height: 40px;
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+
+    .button-group button {
+      padding: 12px 25px;
+      font-size: 1.2em;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    #restartButton {
+      background-color: #f39c12;
+    }
+
+    #restartButton:hover {
+      background-color: #e67e22;
+    }
+
+    #nextButton {
+      background-color: #3498db;
+    }
+
+    #nextButton:hover {
+      background-color: #2980b9;
+    }
+
+    #hintImageContainer {
+      margin-top: 25px;
+      text-align: center;
+    }
+
+    #hintImageContainer p {
+      font-size: 1.1em;
+      color: #555;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    #hintImage {
+      width: 120px;
+      height: 120px;
+      border: 3px solid #7f8c8d;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      object-fit: cover;
+    }
+
+    .social-links {
+      margin-top: 30px;
+      display: flex;
+      gap: 20px;
+      font-size: 1.8em;
+    }
+
+    .social-links a {
+      color: #34495e;
+      transition: color 0.3s ease;
+    }
+
+    .social-links a:hover {
+      color: #3498db;
+    }
+
+    @media (max-width: 550px) {
+        .game-container {
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2.2em;
+        }
+        .info-display {
+            font-size: 1.1em;
+        }
+        .message-display {
+            font-size: 1.5em;
+        }
+        .button-group button {
+            padding: 10px 20px;
+            font-size: 1.1em;
+        }
+        #hintImage {
+            width: 100px;
+            height: 100px;
+        }
+    }
+
+    @media (max-width: 400px) {
+        h1 {
+            font-size: 1.8em;
+        }
+        .info-display {
+            font-size: 1em;
+        }
+        .message-display {
+            font-size: 1.2em;
+        }
+        .social-links {
+            font-size: 1.2em;
+            gap: 15px;
+        }
+    }
+
+    @media (min-width: 551px) and (max-width: 768px) {
+        .game-container {
+            max-width: 600px;
+        }
+    }
+
+    @media (min-width: 769px) {
+        .game-container {
+            max-width: 500px;
+        }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>Image Puzzle</h1>
+    <div class="info-display">Moves: <span id="movesCount">0</span></div>
+    <div class="game-board" id="gameBoard"></div>
+    <div class="message-display" id="messageDisplay"></div>
+    <div id="hintImageContainer">
+      <p>Make It :</p>
+      <img id="hintImage" alt="Puzzle Hint Image" />
+    </div>
+    <div class="button-group">
+      <button id="restartButton">Restart Game</button>
+      <button id="nextButton">Next Puzzle</button>
+    </div>
+  </div>
+
+  <div class="social-links">
+    <a href="https://github.com/DiaryOfRAJ" aria-label="GitHub" target="_blank"><i class="fab fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/raj-sharma-3b897131a/" aria-label="LinkedIn" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+    <a href="https://x.com/diary_of_raj" aria-label="Twitter" target="_blank"><i class="fab fa-twitter"></i></a>
+    <a href="https://www.instagram.com/_diary_of_raj_/" aria-label="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+  </div>
+  <p>© 2025 Raj Vishwakarma. All Rights Reserved</p>
+
+  <script>
+    const gameBoard = document.getElementById('gameBoard');
+    const movesCountDisplay = document.getElementById('movesCount');
+    const messageDisplay = document.getElementById('messageDisplay');
+    const restartButton = document.getElementById('restartButton');
+    const nextButton = document.getElementById('nextButton');
+    const hintImage = document.getElementById('hintImage');
+
+    const gridSize = 3;
+    const totalBlocks = gridSize * gridSize;
+    let blocks = [];
+    let emptyBlockIndex;
+    let moves = 0;
+    let gameSolved = false;
+    let currentImageRandomId = Math.floor(Math.random() * 1000);
+
+    const getBlockSize = () => {
+      const boardWidth = gameBoard.offsetWidth - (parseInt(getComputedStyle(gameBoard).borderLeftWidth) * 2);
+      return Math.floor(boardWidth / gridSize);
+    };
+    let blockSize = getBlockSize();
+
+    function getNewImageSrc() {
+      currentImageRandomId++;
+      return `https://picsum.photos/600/600?random=${currentImageRandomId}`;
+    }
+
+    function clearGameBoard() {
+      while (gameBoard.firstChild) {
+        gameBoard.removeChild(gameBoard.firstChild);
+      }
+    }
+
+    function updateEmptyBlock(index) {
+      blocks[index].classList.add('empty');
+      blocks[index].style.backgroundImage = 'none';
+      blocks[index].textContent = '';
+    }
+
+    function createBlocks(imageSrc) {
+      blocks = [];
+      clearGameBoard();
+      
+      blockSize = getBlockSize();
+
+      gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+      gameBoard.style.width = `${gridSize * (blockSize + 2)}px`;
+      gameBoard.style.height = `${gridSize * (blockSize + 2)}px`;
+
+      for (let i = 0; i < totalBlocks; i++) {
+        const block = document.createElement('div');
+        block.classList.add('puzzle-block');
+        block.dataset.originalIndex = i;
+
+        block.style.width = `${blockSize}px`;
+        block.style.height = `${blockSize}px`;
+
+        if (i < totalBlocks - 1) {
+          const row = Math.floor(i / gridSize);
+          const col = i % gridSize;
+          const xOffset = -(col * blockSize);
+          const yOffset = -(row * blockSize);
+          block.style.backgroundImage = `url(${imageSrc})`;
+          block.style.backgroundSize = `${gridSize * blockSize}px ${gridSize * blockSize}px`;
+          block.style.backgroundPosition = `${xOffset}px ${yOffset}px`;
+          block.textContent = i + 1;
+        }
+
+        block.addEventListener('click', handleBlockClick);
+        blocks.push(block);
+      }
+    }
+
+    function shufflePuzzle(imageSrc) {
+      createBlocks(imageSrc);
+      let shuffledArray;
+      let currentEmptyIndex;
+
+      do {
+        shuffledArray = [...blocks];
+        for (let i = shuffledArray.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+        }
+        currentEmptyIndex = shuffledArray.findIndex(
+          block => parseInt(block.dataset.originalIndex) === totalBlocks - 1
+        );
+      } while (!isSolvable(shuffledArray, currentEmptyIndex) || isSolved(shuffledArray));
+
+      blocks = shuffledArray;
+      clearGameBoard();
+      blocks.forEach(block => gameBoard.appendChild(block));
+      emptyBlockIndex = currentEmptyIndex;
+      updateEmptyBlock(emptyBlockIndex);
+    }
+
+    function isSolvable(currentBlocks, currentEmptyBlockPos) {
+      let inversionCount = 0;
+      const puzzleNumbers = [];
+
+      currentBlocks.forEach(block => {
+        if (parseInt(block.dataset.originalIndex) !== totalBlocks - 1) {
+          puzzleNumbers.push(parseInt(block.dataset.originalIndex));
+        }
+      });
+
+      for (let i = 0; i < puzzleNumbers.length - 1; i++) {
+        for (let j = i + 1; j < puzzleNumbers.length; j++) {
+          if (puzzleNumbers[i] > puzzleNumbers[j]) {
+            inversionCount++;
+          }
+        }
+      }
+
+      if (gridSize % 2 === 1) {
+        return inversionCount % 2 === 0;
+      } else {
+        const emptyRowFromBottom = gridSize - Math.floor(currentEmptyBlockPos / gridSize);
+        return (inversionCount + emptyRowFromBottom) % 2 === 0;
+      }
+    }
+
+    function isSolved(currentBlocks = blocks) {
+      for (let i = 0; i < totalBlocks; i++) {
+        if (parseInt(currentBlocks[i].dataset.originalIndex) !== i) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function handleBlockClick(event) {
+      if (gameSolved) return;
+
+      const clickedBlock = event.target;
+      const clickedIndex = blocks.indexOf(clickedBlock);
+      const clickedRow = Math.floor(clickedIndex / gridSize);
+      const clickedCol = clickedIndex % gridSize;
+      const emptyRow = Math.floor(emptyBlockIndex / gridSize);
+      const emptyCol = emptyBlockIndex % gridSize;
+
+      const isAdjacent =
+        (Math.abs(clickedRow - emptyRow) === 1 && clickedCol === emptyCol) ||
+        (Math.abs(clickedCol - emptyCol) === 1 && clickedRow === emptyRow);
+
+      if (isAdjacent) {
+        [blocks[clickedIndex], blocks[emptyBlockIndex]] = [
+          blocks[emptyBlockIndex],
+          blocks[clickedIndex],
+        ];
+
+        clearGameBoard();
+        blocks.forEach(block => gameBoard.appendChild(block));
+
+        blocks[emptyBlockIndex].classList.remove('empty');
+        const originalIndexToRestore = parseInt(blocks[emptyBlockIndex].dataset.originalIndex);
+        const rowToRestore = Math.floor(originalIndexToRestore / gridSize);
+        const colToRestore = originalIndexToRestore % gridSize;
+        blocks[emptyBlockIndex].style.backgroundImage = `url(${hintImage.src})`;
+        blocks[emptyBlockIndex].style.backgroundSize = `${gridSize * blockSize}px ${gridSize * blockSize}px`;
+        blocks[emptyBlockIndex].style.backgroundPosition = `-${colToRestore * blockSize}px -${rowToRestore * blockSize}px`;
+        blocks[emptyBlockIndex].textContent = originalIndexToRestore + 1;
+
+        emptyBlockIndex = clickedIndex;
+        updateEmptyBlock(emptyBlockIndex);
+
+        moves++;
+        movesCountDisplay.textContent = moves;
+
+        if (isSolved()) {
+          messageDisplay.textContent = `Well Done! You solved it in ${moves} moves!`;
+          gameSolved = true;
+
+          blocks[totalBlocks - 1].classList.remove('empty');
+          blocks[totalBlocks - 1].style.backgroundImage = `url(${hintImage.src})`;
+          const rowSolved = Math.floor((totalBlocks - 1) / gridSize);
+          const colSolved = (totalBlocks - 1) % gridSize;
+          blocks[totalBlocks - 1].style.backgroundSize = `${gridSize * blockSize}px ${gridSize * blockSize}px`;
+          blocks[totalBlocks - 1].style.backgroundPosition = `-${colSolved * blockSize}px -${rowSolved * blockSize}px`;
+          blocks[totalBlocks - 1].textContent = totalBlocks;
+        }
+      }
+    }
+
+    function resetGame(newImage = false) {
+      moves = 0;
+      movesCountDisplay.textContent = moves;
+      messageDisplay.textContent = 'Loading puzzle...';
+      gameSolved = false;
+
+      let imageToUse = hintImage.src;
+      if (newImage || hintImage.src === "") {
+        imageToUse = getNewImageSrc();
+      }
+
+      hintImage.onload = () => {
+        blockSize = getBlockSize();
+        shufflePuzzle(hintImage.src);
+        messageDisplay.textContent = '';
+      };
+      hintImage.onerror = () => {
+        messageDisplay.textContent = 'Failed to load image. Please try again.';
+        hintImage.src = 'https://via.placeholder.com/600/CCCCCC/FFFFFF?text=Error';
+      };
+
+      hintImage.src = imageToUse;
+    }
+
+    function restartGame() {
+      if (confirm("Are you sure you want to restart the current puzzle?")) {
+        resetGame(false);
+      }
+    }
+
+    function loadNextPuzzle() {
+      if (confirm("Are you sure? This will load a new puzzle.")) {
+        resetGame(true);
+      }
+    }
+
+    restartButton.addEventListener('click', restartGame);
+    nextButton.addEventListener('click', loadNextPuzzle);
+
+    resetGame(true);
+
+    window.addEventListener('resize', () => {
+        if (!gameSolved) {
+            shufflePuzzle(hintImage.src);
+        } else {
+            blockSize = getBlockSize();
+            gameBoard.style.width = `${gridSize * (blockSize + 2)}px`;
+            gameBoard.style.height = `${gridSize * (blockSize + 2)}px`;
+            blocks.forEach((block, i) => {
+                block.style.width = `${blockSize}px`;
+                block.style.height = `${blockSize}px`;
+                const row = Math.floor(parseInt(block.dataset.originalIndex) / gridSize);
+                const col = parseInt(block.dataset.originalIndex) % gridSize;
+                const xOffset = -(col * blockSize);
+                const yOffset = -(row * blockSize);
+                block.style.backgroundSize = `${gridSize * blockSize}px ${gridSize * blockSize}px`;
+                block.style.backgroundPosition = `${xOffset}px ${yOffset}px`;
+            });
+        }
+    });
+  </script>
+</body>
+</html>

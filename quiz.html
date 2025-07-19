@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizUp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rubik:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="quiz.css">
+</head>
+<body>
+    <div class="area">
+        <ul class="circles">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+    <div class="quiz-container">
+        <h1> QUIZ-UP </h1>
+
+        <div id="creatorSection" class="section">
+            <h2>Create Your Questions</h2>
+            <label for="questionText">Question:</label>
+            <textarea id="questionText" placeholder="Type your brilliant question here..." rows="4"></textarea>
+
+            <label>Options:</label>
+            <div id="optionsInput">
+                <div class="option-group">
+                    <span class="radio-label-text">Option 1:</span>
+                    <input type="radio" name="correctOption" value="0" id="opt0">
+                    <input type="text" class="option-text" placeholder="Enter option text">
+                    <button class="remove-option-btn" title="Remove Option"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="option-group">
+                    <span class="radio-label-text">Option 2:</span>
+                    <input type="radio" name="correctOption" value="1" id="opt1">
+                    <input type="text" class="option-text" placeholder="Enter option text">
+                    <button class="remove-option-btn" title="Remove Option"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="option-group">
+                    <span class="radio-label-text">Option 3:</span>
+                    <input type="radio" name="correctOption" value="2" id="opt2">
+                    <input type="text" class="option-text" placeholder="Enter option text">
+                    <button class="remove-option-btn" title="Remove Option"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="option-group">
+                    <span class="radio-label-text">Option 4:</span>
+                    <input type="radio" name="correctOption" value="3" id="opt3">
+                    <input type="text" class="option-text" placeholder="Enter option text">
+                    <button class="remove-option-btn" title="Remove Option"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <button id="addOptionBtn"><i class="fas fa-plus"></i> Add Option</button>
+            <button id="addQuestionBtn"><i class="fas fa-check-circle"></i> Add Question</button>
+            <button id="startQuizBtn"><i class="fas fa-play"></i> Start Quiz!</button>
+        </div>
+
+        <div id="solverSection" class="section" style="display: none;">
+            <h2>Challenge Yourself </h2>
+            <div id="questionsContainer">
+                </div>
+            <button id="submitQuizBtn"><i class="fas fa-paper-plane"></i> Submit Quiz</button>
+            <p class="result" id="quizResult"></p>
+            <button id="createAgainBtn"><i class="fas fa-redo-alt"></i> Create New Quiz</button>
+        </div>
+     <div class="social-links">
+        <a href="https://github.com/DiaryOfRAJ" aria-label="GitHub"><i class="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/raj-sharma-3b897131a/" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://x.com/diary_of_raj" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+        <a href="https://www.instagram.com/_diary_of_raj_/" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+     </div>
+        <p>&copy; 2025 Raj Vishwakarma. All rights reserved.</p>
+    </div>
+<script src="quiz.js"></script>
+</body>
+</html>
