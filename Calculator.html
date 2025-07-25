@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #e0e5ec;
+      margin: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .calculator {
+      border: 1px solid #c9d2da;
+      border-radius: 12px;
+      box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.1),
+                  -5px -5px 10px rgba(255, 255, 255, 0.7);
+      width: 320px;
+      padding: 25px;
+      background-color: #eff3f7;
+      margin-bottom: 30px;
+    }
+
+    .display-container {
+      margin-bottom: 20px;
+      background-color: #c9d2da;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1),
+                  inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      height: 90px;
+      justify-content: space-between;
+    }
+
+    .history-display {
+      font-size: 0.9em;
+      color: #666;
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+
+    .current-display {
+      width: 100%;
+      height: 50px;
+      background-color: transparent;
+      border: none;
+      font-size: 2.2em;
+      text-align: right;
+      padding: 0 5px;
+      color: #333;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .button {
+      height: 65px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.6em;
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #e0e5ec;
+      box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.1),
+                  -3px -3px 6px rgba(255, 255, 255, 0.7);
+      color: #555;
+      user-select: none;
+    }
+
+    .button.operator {
+      background-color: #f39c12;
+      color: white;
+    }
+    .button.operator:hover { background-color: #e68a00; }
+    .button.operator:active { background-color: #d97800; }
+
+    .button.equals {
+      background-color: #2ecc71;
+      color: white;
+      grid-column: span 2;
+    }
+    .button.equals:hover { background-color: #28a745; }
+    .button.equals:active { background-color: #218838; }
+
+    .button.clear {
+      background-color: #e74c3c;
+      color: white;
+    }
+    .button.clear:hover { background-color: #dc3545; }
+    .button.clear:active { background-color: #c82333; }
+
+    .button.function {
+      background-color: #d1d9e6;
+      color: #444;
+    }
+    .button.function:hover { background-color: #c3cad5; }
+    .button.function:active { background-color: #b4c0cd; }
+
+    .button.active-key {
+      box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2),
+                  inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+      transform: scale(0.98);
+    }
+
+    .buttons > :nth-child(18) {
+      grid-column: span 2;
+    }
+
+    /* Footer Styles */
+    .footer {
+      text-align: center;
+      padding: 15px 0;
+      color: #555;
+      font-size: 14px;
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+      background-color: rgba(224, 229, 236, 0.8);
+    }
+
+    .social-links {
+      margin-bottom: 10px;
+    }
+
+    .social-links a {
+      color: #555;
+      margin: 0 10px;
+      font-size: 18px;
+      transition: color 0.3s ease;
+    }
+
+    .social-links a:hover {
+      color: #f39c12;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="display-container">
+      <div id="historyDisplay" class="history-display"></div>
+      <input type="text" id="currentDisplay" class="current-display" readonly value="0" />
+    </div>
+    <div class="buttons">
+      <button class="button clear" onclick="clearAll()">AC</button>
+      <button class="button function" onclick="clearEntry()">CE</button>
+      <button class="button operator" onclick="handleOperator('/')">/</button>
+      <button class="button operator" onclick="handleOperator('*')">*</button>
+
+      <button class="button number" onclick="appendToCurrentDisplay('7')">7</button>
+      <button class="button number" onclick="appendToCurrentDisplay('8')">8</button>
+      <button class="button number" onclick="appendToCurrentDisplay('9')">9</button>
+      <button class="button operator" onclick="handleOperator('-')">-</button>
+
+      <button class="button number" onclick="appendToCurrentDisplay('4')">4</button>
+      <button class="button number" onclick="appendToCurrentDisplay('5')">5</button>
+      <button class="button number" onclick="appendToCurrentDisplay('6')">6</button>
+      <button class="button operator" onclick="handleOperator('+')">+</button>
+
+      <button class="button number" onclick="appendToCurrentDisplay('1')">1</button>
+      <button class="button number" onclick="appendToCurrentDisplay('2')">2</button>
+      <button class="button number" onclick="appendToCurrentDisplay('3')">3</button>
+      <button class="button number" onclick="appendToCurrentDisplay('.')">.</button>
+
+      <button class="button number" onclick="appendToCurrentDisplay('0')">0</button>
+      <button class="button equals" onclick="calculateResult()">=</button>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="social-links">
+      <a href="https://github.com/DiaryOfRAJ" aria-label="GitHub" target="_blank"><i class="fab fa-github"></i></a>
+      <a href="https://www.linkedin.com/in/raj-sharma-3b897131a/" aria-label="LinkedIn" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+      <a href="https://x.com/diary_of_raj" aria-label="Twitter" target="_blank"><i class="fab fa-twitter"></i></a>
+      <a href="https://www.instagram.com/_diary_of_raj_/" aria-label="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+    </div>
+    
+    &copy; 2025 Raj Vishwakarma. All Rights Reserved.
+  </footer>
+
+  <script>
+    // --- JAVASCRIPT SECTION ---
+    const historyDisplay = document.getElementById('historyDisplay');
+    const currentDisplay = document.getElementById('currentDisplay');
+
+    let currentInput = '0';
+    let operator = null;
+    let firstOperand = null;
+    let waitingForSecondOperand = false;
+    let equation = '';
+
+    function updateFullDisplay() {
+      currentDisplay.value = currentInput.length > 12
+        ? parseFloat(currentInput).toPrecision(10)
+        : currentInput;
+
+      if (firstOperand !== null && operator !== null && !waitingForSecondOperand) {
+        historyDisplay.textContent = `${firstOperand} ${operator} ${currentInput}`;
+      } else if (firstOperand !== null && operator !== null && waitingForSecondOperand) {
+        historyDisplay.textContent = `${firstOperand} ${operator}`;
+      } else if (equation) {
+        historyDisplay.textContent = equation;
+      } else {
+        historyDisplay.textContent = '';
+      }
+    }
+
+    function appendToCurrentDisplay(value) {
+      if (currentDisplay.value.startsWith('Error')) {
+        currentInput = '0';
+        equation = '';
+      }
+
+      if (value === '.' && currentInput.includes('.')) return;
+
+      if (waitingForSecondOperand) {
+        currentInput = value;
+        waitingForSecondOperand = false;
+      } else {
+        currentInput = (currentInput === '0' && value !== '.') ? value : currentInput + value;
+      }
+
+      updateFullDisplay();
+    }
+
+    function clearAll() {
+      currentInput = '0';
+      operator = null;
+      firstOperand = null;
+      waitingForSecondOperand = false;
+      equation = '';
+      updateFullDisplay();
+    }
+
+    function clearEntry() {
+      if (!waitingForSecondOperand) {
+        currentInput = '0';
+        updateFullDisplay();
+      }
+    }
+
+    function handleOperator(selectedOperator) {
+      if (firstOperand !== null && operator !== null && !waitingForSecondOperand) {
+        calculateResult();
+        firstOperand = parseFloat(currentInput);
+      } else {
+        firstOperand = parseFloat(currentInput);
+      }
+
+      operator = selectedOperator;
+      equation = `${firstOperand} ${operator}`;
+      waitingForSecondOperand = true;
+      updateFullDisplay();
+    }
+
+    function calculateResult() {
+      if (!operator || firstOperand === null) return;
+
+      const secondOperand = parseFloat(currentInput);
+      let result;
+
+      try {
+        switch (operator) {
+          case '+': result = firstOperand + secondOperand; break;
+          case '-': result = firstOperand - secondOperand; break;
+          case '*': result = firstOperand * secondOperand; break;
+          case '/':
+            if (secondOperand === 0) throw new Error('Div by 0');
+            result = firstOperand / secondOperand;
+            break;
+        }
+      } catch (e) {
+        currentDisplay.value = `Error: ${e.message}`;
+        historyDisplay.textContent = `${firstOperand} ${operator} ${secondOperand}`;
+        resetCalc();
+        return;
+      }
+
+      result = parseFloat(result.toPrecision(12));
+      equation = `${firstOperand} ${operator} ${secondOperand} = ${result}`;
+      currentInput = result.toString();
+      resetCalc();
+      updateFullDisplay();
+    }
+
+    function resetCalc() {
+      firstOperand = null;
+      operator = null;
+      waitingForSecondOperand = true;
+    }
+
+    document.addEventListener('keydown', (event) => {
+      const key = event.key;
+
+      if (/\d/.test(key)) appendToCurrentDisplay(key);
+      else if (['+', '-', '*', '/'].includes(key)) handleOperator(key);
+      else if (key === 'Enter' || key === '=') {
+        event.preventDefault();
+        calculateResult();
+      } else if (key === '.') appendToCurrentDisplay('.');
+      else if (key === 'Backspace') {
+        if (currentInput.length > 1) currentInput = currentInput.slice(0, -1);
+        else currentInput = '0';
+        updateFullDisplay();
+      } else if (key === 'Delete') clearAll();
+      else if (key.toLowerCase() === 'c') clearEntry();
+    });
+  </script>
+</body>
+</html>
