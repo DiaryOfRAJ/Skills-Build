@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #333;
+            color: #eee;
+            margin: 0;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .game-container {
+            background-color: #444;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 600px;
+            border: 2px solid #5cb85c;
+            box-sizing: border-box;
+            display: none;
+        }
+        
+        .mode-container {
+            background-color: #444;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 600px;
+            border: 2px solid #5bc0de;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .mode-container h2 {
+            color: #5bc0de;
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+
+        .mode-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .mode-button {
+            background-color: #f0ad4e;
+            color: #333;
+            border: none;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 10px;
+        }
+        
+        .mode-button i {
+            font-size: 2em;
+            color: #333;
+        }
+
+        .mode-button:hover {
+            background-color: #ec971f;
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            color: #d9edf7;
+            margin-bottom: 25px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px #31708f;
+        }
+        
+        #category-display {
+            font-size: 1.5em;
+            color: #f0ad4e;
+            margin-bottom: 15px;
+        }
+
+        .hangman-drawing {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            background-color: #222;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre;
+            min-height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #f7e1b5;
+            line-height: 1;
+        }
+
+        #word-display {
+            font-size: 3em;
+            letter-spacing: 10px;
+            margin-bottom: 30px;
+            color: #f0ad4e;
+            font-weight: bold;
+            word-wrap: break-word;
+            padding: 0 5px;
+        }
+
+        #guesses-made {
+            font-size: 1.1em;
+            color: #ccc;
+            margin-bottom: 20px;
+            word-wrap: break-word;
+        }
+
+        .input-area {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #guess-input {
+            width: 60px;
+            padding: 10px;
+            font-size: 1.5em;
+            text-align: center;
+            border: 2px solid #5bc0de;
+            border-radius: 5px;
+            background-color: #eee;
+            color: #333;
+            text-transform: uppercase;
+            outline: none;
+        }
+
+        #guess-button {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        #guess-button:hover {
+            background-color: #4cae4c;
+        }
+
+        #message {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-top: 15px;
+            min-height: 25px;
+        }
+
+        .win-message {
+            color: #dff0d8;
+        }
+        .lose-message {
+            color: #f2dede;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        #next-word-button, #change-mode-button {
+            background-color: #5bc0de;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        #next-word-button:hover, #change-mode-button:hover {
+            background-color: #31b0d5;
+        }
+
+        /* --- Social Links Styling --- */
+        .social-links {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .social-links a {
+            color: #eee;
+            font-size: 2.5em;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .social-links a:hover {
+            transform: scale(1.2);
+        }
+        
+        .social-links a[href*="github.com"]:hover {
+            color: #6e5494;
+        }
+
+        .social-links a[href*="linkedin.com"]:hover {
+            color: #0e76a8;
+        }
+        
+        .social-links a[href*="x.com"]:hover {
+            color: #1DA1F2;
+        }
+        
+        .social-links a[href*="instagram.com"]:hover {
+            background: -webkit-linear-gradient(#f09433, #e6683c, #dc2743, #cc2366, #bc1888, #833ab4, #5850e3, #405de6);
+            background: linear-gradient(#f09433, #e6683c, #dc2743, #cc2366, #bc1888, #833ab4, #5850e3, #405de6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transform: scale(1.2);
+        }
+
+        p {
+            font-size: 0.8em;
+            margin-top: 20px;
+            color: #999;
+        }
+
+        /* --- Responsive Styles --- */
+        @media (max-width: 768px) {
+            .game-container, .mode-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+            
+            #word-display {
+                font-size: 2em;
+                letter-spacing: 5px;
+                margin-bottom: 20px;
+            }
+
+            #guesses-made {
+                font-size: 1em;
+            }
+
+            .input-area {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            #guess-input {
+                width: 80%;
+                font-size: 1.2em;
+            }
+            
+            #guess-button {
+                width: 80%;
+                padding: 12px;
+                font-size: 1em;
+            }
+
+            #message {
+                font-size: 1.2em;
+            }
+
+            .social-links a {
+                font-size: 2em;
+            }
+            
+            .mode-button {
+                font-size: 1em;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-container, .mode-container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            #word-display {
+                font-size: 1.8em;
+                letter-spacing: 3px;
+            }
+
+            .hangman-drawing {
+                font-size: 1em;
+            }
+
+            .social-links a {
+                font-size: 1.8em;
+            }
+
+            p {
+                font-size: 0.7em;
+            }
+
+            .mode-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mode-container" id="mode-selection">
+        <h2>Choose a Category</h2>
+        <div class="mode-buttons">
+            <button class="mode-button" data-mode="fruits">
+                <i class="fas fa-apple-alt"></i>
+                Fruits
+            </button>
+            <button class="mode-button" data-mode="vegetables">
+                <i class="fas fa-carrot"></i>
+                Vegetables
+            </button>
+            <button class="mode-button" data-mode="animals">
+                <i class="fas fa-paw"></i>
+                Animals
+            </button>
+            <button class="mode-button" data-mode="programming">
+                <i class="fas fa-code"></i>
+                Programming
+            </button>
+        </div>
+    </div>
+    
+    <div class="game-container" id="game-screen">
+        <h1>Hangman</h1>
+        <p id="category-display"></p>
+        <div class="hangman-drawing" id="hangman-drawing"></div>
+        <div id="word-display"></div>
+        <p id="guesses-made">Guessed Letters: </p>
+        <div class="input-area">
+            <input type="text" id="guess-input" maxlength="1" pattern="[A-Za-z]" title="Enter a single letter" autofocus>
+            <button id="guess-button">Guess</button>
+        </div>
+        <p id="message"></p>
+        <div class="action-buttons">
+            <button id="next-word-button">Next Word</button>
+            <button id="change-mode-button">Change Category</button>
+        </div>
+    </div>
+
+    <div class="social-links">
+        <a href="https://github.com/DiaryOfRAJ" aria-label="GitHub" target="_blank"><i class="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/raj-sharma-3b897131a/" aria-label="LinkedIn" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://x.com/diary_of_raj" aria-label="Twitter" target="_blank"><i class="fab fa-twitter"></i></a>
+        <a href="https://www.instagram.com/_diary_of_raj_/" aria-label="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+    </div>
+    <p>© 2025 Raj Vishwakarma. All Rights Reserved</p>
+
+    <script>
+        const modeSelectionScreen = document.getElementById('mode-selection');
+        const gameScreen = document.getElementById('game-screen');
+        const categoryDisplay = document.getElementById('category-display');
+        const wordDisplay = document.getElementById('word-display');
+        const guessesMadeDisplay = document.getElementById('guesses-made');
+        const guessInput = document.getElementById('guess-input');
+        const guessButton = document.getElementById('guess-button');
+        const messageDisplay = document.getElementById('message');
+        const nextWordButton = document.getElementById('next-word-button');
+        const changeModeButton = document.getElementById('change-mode-button');
+        const hangmanDrawing = document.getElementById('hangman-drawing');
+        const modeButtons = document.querySelectorAll('.mode-button');
+
+        const wordCategories = {
+            programming: ['JAVASCRIPT', 'HTML', 'CSS', 'PROGRAMMING', 'COMPUTER', 'DEVELOPER', 'CODING', 'WEBSITE', 'ALGORITHM', 'FRAMEWORK', 'SOFTWARE', 'HARDWARE', 'DATABASE', 'PYTHON', 'JAVA', 'RUBY', 'PHP', 'REACT', 'ANGULAR', 'VUE', 'NODE', 'EXPRESS', 'DJANGO', 'FLASK', 'API', 'DEBUGGING', 'SYNTAX', 'VARIABLE', 'FUNCTION', 'LOOP', 'CLASS', 'OBJECT', 'ARRAY', 'STRING', 'BOOLEAN', 'INTEGER', 'FLOAT', 'CONSTRUCTOR', 'METHOD', 'MODULE', 'LIBRARY', 'TERMINAL', 'COMMAND', 'REPOSITORY', 'GIT', 'GITHUB', 'STACK', 'OVERFLOW', 'DEPLOYMENT', 'SERVER', 'CLIENT', 'FRONTEND', 'BACKEND', 'FULLSTACK', 'INTERFACE', 'PROTOCOL', 'BINARY', 'COMPILER', 'INTERPRETER', 'MEMORY', 'CPU', 'PROCESSOR', 'OPERATING SYSTEM', 'NETWORK', 'CLOUD', 'SECURITY', 'ENCRYPTION', 'FIREWALL'],
+            fruits: ['APPLE', 'BANANA', 'ORANGE', 'GRAPE', 'STRAWBERRY', 'MANGO', 'PINEAPPLE', 'WATERMELON', 'CHERRY', 'BLUEBERRY', 'KIWI', 'LEMON', 'LIME', 'PEAR', 'PEACH', 'PLUM', 'APRICOT', 'AVOCADO', 'RASPBERRY', 'BLACKBERRY', 'FIG', 'COCONUT', 'DATE', 'GUAVA', 'PAPAYA', 'MELON', 'NECTARINE', 'POMEGRANATE', 'TANGERINE', 'PERSIMMON'],
+            vegetables: ['CARROT', 'POTATO', 'ONION', 'BROCCOLI', 'CABBAGE', 'CUCUMBER', 'TOMATO', 'SPINACH', 'LETTUCE', 'CELERY', 'MUSHROOM', 'CORN', 'PEA', 'BEAN', 'EGGPLANT', 'GARLIC', 'GINGER', 'PUMPKIN', 'ZUCCHINI', 'SQUASH', 'BEETROOT', 'CAULIFLOWER', 'ARTICHOKE', 'ASPARAGUS', 'BRUSSELS', 'KALE', 'RADISH', 'TURNIP'],
+            animals: ['ELEPHANT', 'TIGER', 'LION', 'GIRAFFE', 'ZEBRA', 'MONKEY', 'BEAR', 'WOLF', 'KANGAROO', 'DOLPHIN', 'WHALE', 'SHARK', 'EAGLE', 'OWL', 'PENGUIN', 'TURTLE', 'SNAKE', 'SPIDER', 'BUTTERFLY', 'RABBIT', 'SQUIRREL', 'DEER', 'FOX', 'PANDA', 'KOALA', 'CHIMPANZEE', 'HIPPO', 'RHINO', 'CROCODILE', 'ZEBU', 'JAGUAR']
+        };
+
+        const hangmanStages = [
+            `
+  +---+
+  |   |
+      |
+      |
+      |
+      |
+=========
+`,
+            `
+  +---+
+  |   |
+  O   |
+      |
+      |
+      |
+=========
+`,
+            `
+  +---+
+  |   |
+  O   |
+  |   |
+      |
+      |
+=========
+`,
+            `
+  +---+
+  |   |
+  O   |
+ /|   |
+      |
+      |
+=========
+`,
+            `
+  +---+
+  |   |
+  O   |
+ /|\\  |
+      |
+      |
+=========
+`,
+            `
+  +---+
+  |   |
+  O   |
+ /|\\  |
+ /    |
+      |
+=========
+`,
+            `
+  +---+
+  |   |
+  O   |
+ /|\\  |
+ / \\  |
+      |
+=========
+`
+        ];
+
+        let chosenWord = '';
+        let guessedWord = [];
+        let wrongGuesses = 0;
+        let guessedLetters = [];
+        let maxWrongGuesses = hangmanStages.length - 1;
+        let currentCategory = '';
+
+        function showModeSelection() {
+            gameScreen.style.display = 'none';
+            modeSelectionScreen.style.display = 'block';
+        }
+
+        function initializeGame(category) {
+            currentCategory = category;
+            const words = wordCategories[category];
+            chosenWord = words[Math.floor(Math.random() * words.length)];
+            guessedWord = Array(chosenWord.length).fill('_');
+            wrongGuesses = 0;
+            guessedLetters = [];
+            
+            categoryDisplay.textContent = `Category: ${category.charAt(0).toUpperCase() + category.slice(1)}`;
+
+            modeSelectionScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            
+            updateDisplay();
+            messageDisplay.textContent = '';
+            messageDisplay.className = '';
+            guessInput.value = '';
+            guessInput.disabled = false;
+            guessButton.disabled = false;
+            drawHangman();
+            guessInput.focus();
+        }
+
+        function updateDisplay() {
+            wordDisplay.textContent = guessedWord.join(' ');
+            guessesMadeDisplay.textContent = `Guessed Letters: ${guessedLetters.join(', ')}`;
+        }
+
+        function drawHangman() {
+            hangmanDrawing.textContent = hangmanStages[wrongGuesses];
+        }
+
+        function handleGuess() {
+            const guess = guessInput.value.toUpperCase();
+            guessInput.value = '';
+
+            if (!guess.match(/[A-Z]/) || guess.length !== 1) {
+                messageDisplay.textContent = 'Please enter a single letter.';
+                messageDisplay.className = 'lose-message';
+                return;
+            }
+
+            if (guessedLetters.includes(guess)) {
+                messageDisplay.textContent = `You already guessed "${guess}". Try another letter.`;
+                messageDisplay.className = 'lose-message';
+                return;
+            }
+
+            guessedLetters.push(guess);
+            messageDisplay.textContent = '';
+            messageDisplay.className = '';
+
+            if (chosenWord.includes(guess)) {
+                for (let i = 0; i < chosenWord.length; i++) {
+                    if (chosenWord[i] === guess) {
+                        guessedWord[i] = guess;
+                    }
+                }
+                updateDisplay();
+                checkWinLose();
+            } else {
+                wrongGuesses++;
+                drawHangman();
+                updateDisplay();
+                checkWinLose();
+            }
+        }
+
+        function checkWinLose() {
+            if (guessedWord.join('') === chosenWord) {
+                messageDisplay.textContent = `You win! The word was "${chosenWord}"! 🎉`;
+                messageDisplay.classList.add('win-message');
+                endGame();
+            } else if (wrongGuesses >= maxWrongGuesses) {
+                messageDisplay.textContent = `You lose! The word was "${chosenWord}". 💀`;
+                messageDisplay.classList.add('lose-message');
+                endGame();
+            }
+        }
+
+        function endGame() {
+            guessInput.disabled = true;
+            guessButton.disabled = true;
+        }
+        modeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const mode = button.getAttribute('data-mode');
+                initializeGame(mode);
+            });
+        });
+
+        guessButton.addEventListener('click', handleGuess);
+        guessInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && !guessButton.disabled) {
+                handleGuess();
+            }
+        });
+        nextWordButton.addEventListener('click', () => {
+            initializeGame(currentCategory);
+        });
+        changeModeButton.addEventListener('click', showModeSelection);
+        showModeSelection();
+    </script>
+</body>
+</html>
