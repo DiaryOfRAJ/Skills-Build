@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letter Frenzy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #1a1a2e;
+            color: #e0f2f7;
+            margin: 0;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .game-container {
+            background-color: #2c2c4d;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+            border: 3px solid #66ffff;
+            position: relative;
+            height: 550px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #00ffcc;
+            margin-bottom: 15px;
+            font-size: 2.8em;
+            text-shadow: 2px 2px #008066;
+        }
+        #score-time-area {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        #score-display, #time-display {
+            font-size: 1.6em;
+            color: #ffcc00;
+            font-weight: bold;
+            text-shadow: 1px 1px #cc9900;
+        }
+        .difficulty-select {
+            margin-bottom: 15px;
+        }
+        .difficulty-select label {
+            font-size: 1.1em;
+            margin-right: 10px;
+        }
+        .difficulty-select select {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #66ffff;
+            background-color: #3a3a5e;
+            color: #e0f2f7;
+            font-size: 1em;
+            outline: none;
+            cursor: pointer;
+        }
+        .game-area {
+            flex-grow: 1;
+            position: relative;
+            background-color: #1a1a2e;
+            border-top: 1px dashed #444;
+            border-bottom: 1px dashed #444;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .falling-word {
+            position: absolute;
+            top: -50px;
+            font-size: 2em;
+            color: #99ffff;
+            white-space: nowrap;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            min-width: 0;
+            max-width: 100%;
+        }
+        #text-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.5em;
+            text-align: center;
+            border: 2px solid #66ffff;
+            border-radius: 8px;
+            background-color: #3a3a5e;
+            color: #e0f2f7;
+            outline: none;
+            transition: border-color 0.2s ease;
+            box-sizing: border-box;
+        }
+        #text-input:focus {
+            border-color: #00ffcc;
+        }
+        #game-over-message {
+            font-size: 2.2em;
+            color: #ff6666;
+            font-weight: bold;
+            margin-top: 20px;
+            display: none;
+            text-shadow: 2px 2px #cc3333;
+        }
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .control-buttons button {
+            background-color: #00b3b3;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            flex: 1;
+            max-width: 150px;
+        }
+        .control-buttons button:hover {
+            background-color: #008080;
+            transform: translateY(-2px);
+        }
+        #start-button {
+            background-color: #99ff66;
+            color: #333;
+            font-weight: bold;
+        }
+        #start-button:hover {
+            background-color: #77cc44;
+        }
+        #pause-button {
+            background-color: #ffcc00;
+            color: #333;
+            font-weight: bold;
+            display: none;
+        }
+        #pause-button:hover {
+            background-color: #e0b300;
+        }
+        #stop-button {
+            background-color: #ff6666;
+            display: none;
+        }
+        #stop-button:hover {
+            background-color: #cc3333;
+        }
+        #resume-button {
+            background-color: #66ccff;
+            color: #333;
+            font-weight: bold;
+            display: none;
+        }
+        #resume-button:hover {
+            background-color: #44bbee;
+        }
+        #reset-button {
+            background-color: #ff6666;
+            display: none;
+        }
+        .social-links {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+            font-size: 2em;
+        }
+        .social-links a {
+            color: #66ffff;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+        .social-links a:hover {
+            color: #00ffcc;
+            transform: scale(1.1);
+        }
+        p {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #888;
+        }
+        
+        /* --- Desktop Styles (larger than 768px) --- */
+        @media (min-width: 769px) {
+            .game-container {
+                width: 70%; /* Wider container */
+                max-width: 800px; /* Increased max-width */
+                height: 700px; /* Taller game area */
+                padding: 40px; /* More padding */
+            }
+            h1 {
+                font-size: 3.5em; /* Larger title */
+            }
+            #score-display, #time-display {
+                font-size: 2em; /* Larger score and time text */
+            }
+            .falling-word {
+                font-size: 2.5em; /* Larger falling words */
+            }
+            #text-input {
+                font-size: 1.8em; /* Larger input box text */
+                padding: 20px;
+            }
+            .control-buttons button {
+                padding: 15px 30px; /* Larger buttons */
+                font-size: 1.4em;
+                max-width: 180px;
+            }
+        }
+        
+        /* --- Responsive Styles (up to 768px) --- */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .game-container {
+                padding: 15px;
+                height: 80vh;
+                width: 95%;
+            }
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 10px;
+            }
+            #score-display, #time-display {
+                font-size: 1.1em;
+            }
+            .falling-word {
+                font-size: 1.3em;
+            }
+            #text-input {
+                padding: 12px;
+                font-size: 1em;
+            }
+            .control-buttons {
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 10px;
+            }
+            .control-buttons button {
+                padding: 10px 15px;
+                font-size: 1em;
+                min-width: 45%;
+            }
+            .social-links {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Type the Falling Word!</h1>
+        <div id="score-time-area">
+            <div id="score-display">Score: 0</div>
+            <div id="time-display">Time: 60s</div>
+        </div>
+
+        <div class="difficulty-select">
+            <label for="difficulty">Mode:</label>
+            <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+        </div>
+
+        <div class="game-area" id="gameArea">
+        </div>
+        <input type="text" id="text-input" placeholder="Start typing here...">
+        <p id="game-over-message">Game Over!</p>
+
+        <div class="control-buttons">
+            <button id="start-button">Start Game</button>
+            <button id="pause-button">Pause</button>
+            <button id="resume-button">Resume</button>
+            <button id="stop-button">Stop</button>
+            <button id="reset-button">Play Again</button>
+        </div>
+    </div>
+    <div class="social-links">
+        <a href="https://github.com/DiaryOfRAJ" aria-label="GitHub" target="_blank"><i class="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/raj-sharma-3b897131a/" aria-label="LinkedIn" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://x.com/diary_of_raj" aria-label="Twitter" target="_blank"><i class="fab fa-twitter"></i></a>
+        <a href="https://www.instagram.com/_diary_of_raj_/" aria-label="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+    </div>
+    <p>© 2025 Raj Vishwakarma. All Rights Reserved</p>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        const textInput = document.getElementById('text-input');
+        const scoreDisplay = document.getElementById('score-display');
+        const timeDisplay = document.getElementById('time-display');
+        const startButton = document.getElementById('start-button');
+        const pauseButton = document.getElementById('pause-button');
+        const resumeButton = document.getElementById('resume-button');
+        const stopButton = document.getElementById('stop-button');
+        const resetButton = document.getElementById('reset-button');
+        const gameOverMessage = document.getElementById('game-over-message');
+        const difficultySelect = document.getElementById('difficulty');
+
+        const words = ['apple', 'banana', 'cherry', 'grape', 'orange', 'strawberry', 'kiwi', 'mango', 'pineapple', 'watermelon', 'blueberry', 'lemon', 'peach', 'plum', 'pear', 'computer', 'keyboard', 'monitor', 'internet', 'programming', 'developer', 'javascript', 'html', 'css', 'algorithm', 'function', 'variable', 'console', 'terminal', 'server', 'client', 'framework', 'library', 'database', 'security', 'network', 'router', 'modem', 'website', 'application', 'software', 'hardware', 'processor', 'memory', 'storage', 'pixel', 'vector', 'binary', 'decimal', 'hexadecimal', 'encryption', 'decryption', 'authentication', 'authorization', 'protocol', 'broadband', 'ethernet', 'wireless', 'bluetooth', 'firewall', 'antivirus', 'malware', 'phishing', 'spam', 'cookie', 'session', 'cache', 'render', 'deploy', 'package', 'module', 'component', 'responsive', 'stylesheet', 'animation', 'transition', 'flexbox', 'grid', 'viewport', 'debugger', 'breakpoint', 'recursion', 'iteration', 'boolean', 'string', 'number', 'array', 'object', 'class', 'instance', 'constructor', 'prototype', 'inheritance', 'polymorphism', 'encapsulation', 'abstraction', 'interface', 'event', 'listener', 'callback', 'promise', 'async', 'await', 'generator', 'iterator', 'closure', 'scope', 'context', 'hosting', 'syntax', 'semantics', 'compiler', 'interpreter', 'runtime', 'virtual', 'machine', 'container', 'cloud', 'serverless', 'microservices', 'api', 'restful', 'graphql', 'json', 'xml', 'yaml', 'markdown', 'git', 'github', 'repository', 'commit', 'branch', 'merge', 'pullrequest', 'push', 'clone', 'fork', 'cli', 'gui', 'ide', 'editor', 'terminal', 'shell', 'script', 'command', 'terminal', 'linux', 'windows', 'macos', 'android', 'ios', 'ubuntu', 'fedora', 'debian', 'centos', 'redhat', 'docker', 'kubernetes', 'aws', 'azure', 'googlecloud', 'heroku', 'netlify', 'vercel', 'firebase', 'mongodb', 'mysql', 'postgresql', 'sqlite', 'redis', 'graphql', 'typescript', 'python', 'java', 'csharp', 'php', 'ruby', 'go', 'rust', 'swift', 'kotlin', 'scala', 'perl', 'bash', 'powershell'];
+        
+        let activeWords = [];
+        let score = 0;
+        let timeLeft = 60;
+        let gameActive = false;
+        let gamePaused = false;
+        let gameInterval;
+        let wordSpawnInterval;
+        let timerInterval;
+
+        const difficultySettings = {
+            easy: {
+                wordFallSpeed: 0.7,
+                wordSpawnRate: 2000,
+                timeLimit: 90
+            },
+            medium: {
+                wordFallSpeed: 1.2,
+                wordSpawnRate: 1500,
+                timeLimit: 60
+            },
+            hard: {
+                wordFallSpeed: 1.6,
+                wordSpawnRate: 1000,
+                timeLimit: 45
+            }
+        };
+        let currentDifficulty = difficultySettings.medium;
+
+        function applyDifficultySettings() {
+            const selectedDifficulty = difficultySelect.value;
+            currentDifficulty = difficultySettings[selectedDifficulty];
+            timeLeft = currentDifficulty.timeLimit;
+            timeDisplay.textContent = `Time: ${timeLeft}s`;
+        }
+
+        function initializeGame() {
+            gameActive = false;
+            gamePaused = false;
+            score = 0;
+            
+            applyDifficultySettings();
+
+            activeWords = [];
+            
+            scoreDisplay.textContent = `Score: ${score}`;
+            textInput.value = '';
+            textInput.disabled = true;
+            gameOverMessage.style.display = 'none';
+
+            startButton.style.display = 'block';
+            pauseButton.style.display = 'none';
+            resumeButton.style.display = 'none';
+            stopButton.style.display = 'none';
+            resetButton.style.display = 'none';
+            difficultySelect.disabled = false;
+
+            Array.from(gameArea.children).forEach(child => child.remove());
+
+            clearInterval(gameInterval);
+            clearInterval(wordSpawnInterval);
+            clearInterval(timerInterval);
+        }
+
+        function startGame() {
+            initializeGame();
+            gameActive = true;
+            textInput.disabled = false;
+            textInput.focus();
+            difficultySelect.disabled = true;
+
+            startButton.style.display = 'none';
+            pauseButton.style.display = 'inline-block';
+            stopButton.style.display = 'inline-block';
+            
+            gameInterval = setInterval(gameLoop, 20);
+
+            wordSpawnInterval = setInterval(spawnWord, currentDifficulty.wordSpawnRate);
+
+            timerInterval = setInterval(() => {
+                if (gameActive && !gamePaused) {
+                    timeLeft--;
+                    timeDisplay.textContent = `Time: ${timeLeft}s`;
+                    if (timeLeft <= 0) {
+                        endGame();
+                    }
+                }
+            }, 1000);
+        }
+
+        function pauseGame() {
+            if (!gameActive || gamePaused) return;
+            gamePaused = true;
+            clearInterval(gameInterval);
+            clearInterval(wordSpawnInterval);
+            clearInterval(timerInterval);
+            textInput.disabled = true;
+
+            pauseButton.style.display = 'none';
+            resumeButton.style.display = 'inline-block';
+            textInput.placeholder = "Game Paused...";
+        }
+
+        function resumeGame() {
+            if (!gameActive || !gamePaused) return;
+            gamePaused = false;
+            textInput.disabled = false;
+            textInput.focus();
+            
+            gameInterval = setInterval(gameLoop, 20);
+            wordSpawnInterval = setInterval(spawnWord, currentDifficulty.wordSpawnRate);
+            timerInterval = setInterval(() => {
+                if (gameActive && !gamePaused) {
+                    timeLeft--;
+                    timeDisplay.textContent = `Time: ${timeLeft}s`;
+                    if (timeLeft <= 0) {
+                        endGame();
+                    }
+                }
+            }, 1000);
+
+            pauseButton.style.display = 'inline-block';
+            resumeButton.style.display = 'none';
+            textInput.placeholder = "Start typing here...";
+        }
+
+        function spawnWord() {
+            if (!gameActive || gamePaused) return;
+
+            const randomWord = words[Math.floor(Math.random() * words.length)];
+            const wordElement = document.createElement('div');
+            wordElement.classList.add('falling-word');
+            wordElement.textContent = randomWord;
+            
+            // Append the word to the game area temporarily to get its actual width
+            gameArea.appendChild(wordElement);
+
+            // Get the game area and word widths
+            const gameAreaWidth = gameArea.offsetWidth;
+            const wordWidth = wordElement.offsetWidth;
+            
+            // Calculate a safe horizontal position
+            const maxLeft = gameAreaWidth - wordWidth;
+            const randomLeft = Math.random() * maxLeft;
+
+            // Apply the new position
+            wordElement.style.left = `${randomLeft}px`; 
+
+            activeWords.push({
+                element: wordElement,
+                text: randomWord,
+                y: -50,
+                speed: currentDifficulty.wordFallSpeed + (score / 200) * 0.1
+            });
+        }
+
+        function gameLoop() {
+            if (!gameActive || gamePaused) return;
+
+            activeWords.forEach((wordObj, index) => {
+                wordObj.y += wordObj.speed;
+                wordObj.element.style.top = `${wordObj.y}px`;
+
+                if (wordObj.y + wordObj.element.offsetHeight > gameArea.offsetHeight) {
+                    wordObj.element.remove();
+                    activeWords.splice(index, 1);
+                    
+                    if (score > 0) score--;
+                    scoreDisplay.textContent = `Score: ${score}`;
+                }
+            });
+        }
+
+        function checkInput() {
+            if (!gameActive || gamePaused) return;
+
+            const typedText = textInput.value.toLowerCase();
+
+            for (let i = 0; i < activeWords.length; i++) {
+                const wordObj = activeWords[i];
+                if (typedText === wordObj.text.toLowerCase()) {
+                    score++;
+                    scoreDisplay.textContent = `Score: ${score}`;
+                    wordObj.element.remove();
+                    activeWords.splice(i, 1);
+                    textInput.value = '';
+                    break;
+                }
+            }
+        }
+
+        function endGame(stopped = false) {
+            gameActive = false;
+            gamePaused = false;
+            clearInterval(gameInterval);
+            clearInterval(wordSpawnInterval);
+            clearInterval(timerInterval);
+            textInput.disabled = true;
+
+            if (stopped) {
+                gameOverMessage.textContent = `Game Stopped! Your final score is: ${score}`;
+            } else {
+                gameOverMessage.textContent = `Time's Up! Your final score is: ${score}`;
+            }
+            gameOverMessage.style.display = 'block';
+            
+            startButton.style.display = 'none';
+            pauseButton.style.display = 'none';
+            resumeButton.style.display = 'none';
+            stopButton.style.display = 'none';
+            resetButton.style.display = 'block';
+            difficultySelect.disabled = false;
+
+            activeWords.forEach(wordObj => wordObj.element.remove());
+            activeWords = [];
+        }
+
+        textInput.addEventListener('input', checkInput);
+        startButton.addEventListener('click', startGame);
+        pauseButton.addEventListener('click', pauseGame);
+        resumeButton.addEventListener('click', resumeGame);
+        stopButton.addEventListener('click', () => endGame(true));
+        resetButton.addEventListener('click', initializeGame);
+        difficultySelect.addEventListener('change', applyDifficultySettings);
+
+        initializeGame();
+    </script>
+</body>
+</html>
